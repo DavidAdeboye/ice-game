@@ -7,18 +7,6 @@ import Image from "next/image"
 import { ChevronRight, Wallet } from 'lucide-react'
 import { useGame } from "@/context/game-context"
 
-interface TonWindow extends Window {
-  ton?: {
-    send: (method: string) => Promise<string[]>;
-  };
-}
-
-declare global {
-  interface Window extends TonWindow {
-    [key: string]: unknown;
-  }
-}
-
 export default function Airdrop() {
   const { walletConnected, connectWallet } = useGame()
   const [walletAddress, setWalletAddress] = useState('')
@@ -143,4 +131,3 @@ export default function Airdrop() {
     </div>
   )
 }
-
