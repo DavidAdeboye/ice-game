@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/components/ui/card"
+import { Card } from "@/components/ui/card"
 import Image from "next/image"
 import { ChevronRight, Wallet } from 'lucide-react'
 import { useGame } from "@/context/game-context"
