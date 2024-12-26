@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server'
 
-// This would be replaced with a real database in a production app
-let users: any[] = []
+interface User {
+  telegramUsername: string;
+  coins: number;
+  minerLevel: number;
+  icePerHour: number;
+  walletAddress: string | null;
+  lastActive: string;
+  isOnline: boolean;
+  ipAddress: string;
+  device: string;
+}
+
+const users: User[] = []
 
 export async function GET() {
   return NextResponse.json(users)
 }
 
 export async function POST(request: Request) {
-  const userData = await request.json()
+  const userData = await request.json() as User
   const existingUserIndex = users.findIndex(u => u.telegramUsername === userData.telegramUsername)
 
   if (existingUserIndex !== -1) {
@@ -19,3 +30,4 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ success: true })
 }
+
