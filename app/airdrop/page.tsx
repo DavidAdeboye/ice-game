@@ -1,52 +1,85 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import Image from "next/image"
-import { ChevronRight, Wallet } from 'lucide-react'
-import { useGame } from "@/context/game-context"
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Settings, Rocket, Zap, Coins } from 'lucide-react';
+import Image from 'next/image';
+import { useGame } from '@/context/game-context';
+import Link from 'next/link';
 
-interface TonWindow extends Window {
-  ton?: {
-    send: (method: string) => Promise<string[]>;
-  };
-}
-
+// Avoid recursive reference by properly augmenting the Window interface
 declare global {
-  interface Window extends TonWindow {
-    [key: string]: unknown;
+  interface Window {
+    ton?: {
+      send: (method: string) => Promise<string[]>;
+    };
+    Telegram?: {
+      WebApp?: {
+        initData: string;
+      };
+    };
   }
 }
 
-export default function Airdrop() {
-  const { walletConnected, connectWallet } = useGame()
-  const [walletAddress, setWalletAddress] = useState('')
+export default function Home() {
+  const {
+    coins,
+    tappablePoints,
+    maxTappablePoints,
+    removeTappablePoint,
+    addCoins,
+    refillSpeed,
+    setUserInfo,
+    incrementTotalTaps,
+    currentCircleLevel,
+    totalTaps,
+    circleLevels,
+  } = useGame();
 
   useEffect(() => {
-    // Check if wallet was previously connected
-    const storedWalletAddress = localStorage.getItem('walletAddress')
-    if (storedWalletAddress) {
-      setWalletAddress(storedWalletAddress)
-      connectWallet(storedWalletAddress)
-    }
-  }, [connectWallet])
+    const initData = window.Telegram?.WebApp?.initData;
+    if (initData) {
+      const params = new URLSearchParams(initData);
+      const username = params.get('username');
+      if (username) {
+        setUserInfo({
+          telegramUsername: username,
+          device: navigator.userAgent,
+          ipAddress: '', // You would need to get this from the server side
+        });
 
-  const handleConnectWallet = async () => {
-    if (typeof window.ton !== 'undefined') {
-      try {
-        const accounts = await window.ton.send('ton_requestAccounts')
-        const address = accounts[0]
-        setWalletAddress(address)
-        localStorage.setItem('walletAddress', address)
-        connectWallet(address)
-      } catch (error) {
-        console.error('Failed to connect wallet:', error)
+        // Send user data to the server
+        fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            telegramUsername: username,
+            device: navigator.userAgent,
+            ipAddress: '',
+          }),
+        });
       }
-    } else {
-      alert('Please install a TON wallet extension')
     }
-  }
+  }, [setUserInfo]);
+
+  const handleClick = () => {
+    if (tappablePoints > 0) {
+      removeTappablePoint();
+      addCoins(1); // Add 1 coin per tap
+      incrementTotalTaps();
+    }
+  };
+
+  const currentCircle = circleLevels[currentCircleLevel];
+  const nextCircle = circleLevels[currentCircleLevel + 1];
+  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0;
+  const progressPercentage =
+    ((totalTaps - (currentCircle?.tapLimit || 0)) /
+      (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) *
+    100;
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20">
