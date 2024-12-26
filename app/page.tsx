@@ -1,19 +1,15 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Settings, Rocket, Zap, Coins } from 'lucide-react';
-import Image from 'next/image';
-import { useGame } from '@/context/game-context';
-import Link from 'next/link';
+import { useEffect, useRef, useState } from 'react'
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { Settings, Rocket, Zap, Coins } from 'lucide-react'
+import Image from "next/image"
+import { useGame } from '@/context/game-context'
+import Link from 'next/link'
 
-// Avoid recursive reference by properly augmenting the Window interface
 declare global {
   interface Window {
-    ton?: {
-      send: (method: string) => Promise<string[]>;
-    };
     Telegram?: {
       WebApp?: {
         initData: string;
@@ -23,63 +19,81 @@ declare global {
 }
 
 export default function Home() {
-  const {
-    coins,
-    tappablePoints,
-    maxTappablePoints,
-    removeTappablePoint,
-    addCoins,
-    refillSpeed,
+  const { 
+    coins, 
+    tappablePoints, 
+    maxTappablePoints, 
+    removeTappablePoint, 
+    addCoins, 
+    refillSpeed, 
     setUserInfo,
     incrementTotalTaps,
     currentCircleLevel,
     totalTaps,
-    circleLevels,
-  } = useGame();
+    circleLevels
+  } = useGame()
+
+  const [activeTouches, setActiveTouches] = useState(0)
+  const circleRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const initData = window.Telegram?.WebApp?.initData;
+    const initData = window.Telegram?.WebApp?.initData
     if (initData) {
-      const params = new URLSearchParams(initData);
-      const username = params.get('username');
+      const params = new URLSearchParams(initData)
+      const username = params.get('username')
       if (username) {
-        setUserInfo({
+        setUserInfo({ 
           telegramUsername: username,
           device: navigator.userAgent,
-          ipAddress: '', // You would need to get this from the server side
-        });
-
+          ipAddress: '' // You would need to get this from the server side
+        })
+        
         // Send user data to the server
         fetch('/api/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
+          body: JSON.stringify({ 
             telegramUsername: username,
             device: navigator.userAgent,
-            ipAddress: '',
+            ipAddress: ''
           }),
-        });
+        })
       }
     }
-  }, [setUserInfo]);
+  }, [setUserInfo])
 
-  const handleClick = () => {
+  const handleTap = () => {
     if (tappablePoints > 0) {
-      removeTappablePoint();
-      addCoins(1); // Add 1 coin per tap
-      incrementTotalTaps();
+      removeTappablePoint()
+      addCoins(1) // Add 1 coin per tap
+      incrementTotalTaps()
     }
-  };
+  }
 
-  const currentCircle = circleLevels[currentCircleLevel];
-  const nextCircle = circleLevels[currentCircleLevel + 1];
-  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0;
-  const progressPercentage =
-    ((totalTaps - (currentCircle?.tapLimit || 0)) /
-      (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) *
-    100;
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    setActiveTouches(e.touches.length)
+    for (let i = 0; i < e.touches.length; i++) {
+      handleTap()
+    }
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault()
+    setActiveTouches(e.touches.length)
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault()
+    setActiveTouches(e.touches.length)
+  }
+
+  const currentCircle = circleLevels[currentCircleLevel]
+  const nextCircle = circleLevels[currentCircleLevel + 1]
+  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0
+  const progressPercentage = ((totalTaps - (currentCircle?.tapLimit || 0)) / (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) * 100
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e]">
@@ -127,7 +141,11 @@ export default function Home() {
         <h2 className="text-xl font-semibold mb-8">Ice Cube Intern • {currentCircleLevel + 1}/9</h2>
 
         <button
-          onClick={handleClick}
+          ref={circleRef}
+          onClick={handleTap}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           disabled={tappablePoints === 0}
           className="relative w-64 h-64 mb-8 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#1a1b1e] disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -137,6 +155,11 @@ export default function Home() {
             fill
             className="object-cover"
           />
+          {activeTouches > 0 && (
+            <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
+              <span className="text-4xl font-bold">{activeTouches}x</span>
+            </div>
+          )}
         </button>
 
         <div className="w-full max-w-sm mb-4">
@@ -167,3 +190,4 @@ export default function Home() {
     </div>
   )
 }
+

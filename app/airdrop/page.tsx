@@ -1,83 +1,52 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { useGame } from '@/context/game-context';
+import { useState, useEffect } from 'react'
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import Image from "next/image"
+import { ChevronRight, Wallet } from 'lucide-react'
+import { useGame } from "@/context/game-context"
 
-// Avoid recursive reference by properly augmenting the Window interface
+interface TonWindow extends Window {
+  ton?: {
+    send: (method: string) => Promise<string[]>;
+  };
+}
+
 declare global {
-  interface Window {
-    ton?: {
-      send: (method: string) => Promise<string[]>;
-    };
-    Telegram?: {
-      WebApp?: {
-        initData: string;
-      };
-    };
+  interface Window extends TonWindow {
+    [key: string]: unknown;
   }
 }
 
-export default function Home() {
-  const {
-    tappablePoints,
-    removeTappablePoint,
-    addCoins,
-    incrementTotalTaps,
-    currentCircleLevel,
-    totalTaps,
-    circleLevels,
-  } = useGame();
+export default function Airdrop() {
+  const { walletConnected, connectWallet } = useGame()
+  const [walletAddress, setWalletAddress] = useState('')
 
   useEffect(() => {
-    const initData = window.Telegram?.WebApp?.initData;
-    if (initData) {
-      const params = new URLSearchParams(initData);
-      const username = params.get('username');
-      if (username) {
-        setUserInfo({
-          telegramUsername: username,
-          device: navigator.userAgent,
-          ipAddress: '', // You would need to get this from the server side
-        });
+    // Check if wallet was previously connected
+    const storedWalletAddress = localStorage.getItem('walletAddress')
+    if (storedWalletAddress) {
+      setWalletAddress(storedWalletAddress)
+      connectWallet(storedWalletAddress)
+    }
+  }, [connectWallet])
 
-        // Send user data to the server
-        fetch('/api/users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            telegramUsername: username,
-            device: navigator.userAgent,
-            ipAddress: '',
-          }),
-        });
+  const handleConnectWallet = async () => {
+    if (typeof window.ton !== 'undefined') {
+      try {
+        const accounts = await window.ton.send('ton_requestAccounts')
+        const address = accounts[0]
+        setWalletAddress(address)
+        localStorage.setItem('walletAddress', address)
+        connectWallet(address)
+      } catch (error) {
+        console.error('Failed to connect wallet:', error)
       }
+    } else {
+      alert('Please install a TON wallet extension')
     }
-  }, []);
-
-  const handleClick = () => {
-    if (tappablePoints > 0) {
-      removeTappablePoint();
-      addCoins(1); // Add 1 coin per tap
-      incrementTotalTaps();
-    }
-  };
-
-  const currentCircle = circleLevels[currentCircleLevel];
-  const nextCircle = circleLevels[currentCircleLevel + 1];
-  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0;
-  const progressPercentage =
-    ((totalTaps - (currentCircle?.tapLimit || 0)) /
-      (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) *
-    100;
-
-  const walletConnected = false; // Example placeholder value
-  const handleConnectWallet = () => {
-    console.log('Wallet connection logic goes here');
-  };
+  }
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20">
@@ -105,20 +74,19 @@ export default function Home() {
             disabled={walletConnected}
           >
             <div className="flex items-center gap-3">
-              {/* Replace with an actual Wallet icon */}
+              <Wallet className="w-8 h-8 text-blue-400" />
               <span className="text-lg">
-                {walletConnected
-                  ? `TON Wallet Connected: xxxxx...xxxx`
-                  : 'Connect your TON wallet'}
+                {walletConnected ? `TON Wallet Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect your TON wallet'}
               </span>
             </div>
+            {!walletConnected && <ChevronRight className="w-6 h-6" />}
           </Button>
         </div>
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Tasks</h2>
           <div className="space-y-4">
-            <div className="p-4 bg-gray-900/50">
+            <Card className="p-4 bg-gray-900/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
@@ -142,9 +110,9 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold">1.00 TON</span>
               </div>
-            </div>
+            </Card>
 
-            <div className="p-4 bg-gray-900/50">
+            <Card className="p-4 bg-gray-900/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
@@ -168,10 +136,11 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold">0.50 TON</span>
               </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
+
