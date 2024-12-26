@@ -2,14 +2,20 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/components/ui/card"
 import Image from "next/image"
 import { ChevronRight, Wallet } from 'lucide-react'
 import { useGame } from "@/context/game-context"
 
+interface TonWindow extends Window {
+  ton?: {
+    send: (method: string) => Promise<string[]>;
+  };
+}
+
 declare global {
-  interface Window {
-    ton?: any;
+  interface Window extends TonWindow {
+    [key: string]: unknown;
   }
 }
 
@@ -137,3 +143,4 @@ export default function Airdrop() {
     </div>
   )
 }
+
