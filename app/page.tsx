@@ -1,15 +1,19 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Settings, Rocket, Zap, Coins } from 'lucide-react'
-import Image from "next/image"
-import { useGame } from '@/context/game-context'
-import Link from 'next/link'
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Settings, Rocket, Zap, Coins } from 'lucide-react';
+import Image from 'next/image';
+import { useGame } from '@/context/game-context';
+import Link from 'next/link';
 
+// Avoid recursive reference by properly augmenting the Window interface
 declare global {
   interface Window {
+    ton?: {
+      send: (method: string) => Promise<string[]>;
+    };
     Telegram?: {
       WebApp?: {
         initData: string;
@@ -19,60 +23,63 @@ declare global {
 }
 
 export default function Home() {
-  const { 
-    coins, 
-    tappablePoints, 
-    maxTappablePoints, 
-    removeTappablePoint, 
-    addCoins, 
-    refillSpeed, 
+  const {
+    coins,
+    tappablePoints,
+    maxTappablePoints,
+    removeTappablePoint,
+    addCoins,
+    refillSpeed,
     setUserInfo,
     incrementTotalTaps,
     currentCircleLevel,
     totalTaps,
-    circleLevels
-  } = useGame()
+    circleLevels,
+  } = useGame();
 
   useEffect(() => {
-    const initData = window.Telegram?.WebApp?.initData
+    const initData = window.Telegram?.WebApp?.initData;
     if (initData) {
-      const params = new URLSearchParams(initData)
-      const username = params.get('username')
+      const params = new URLSearchParams(initData);
+      const username = params.get('username');
       if (username) {
-        setUserInfo({ 
+        setUserInfo({
           telegramUsername: username,
           device: navigator.userAgent,
-          ipAddress: '' // You would need to get this from the server side
-        })
-        
+          ipAddress: '', // You would need to get this from the server side
+        });
+
         // Send user data to the server
         fetch('/api/users', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             telegramUsername: username,
             device: navigator.userAgent,
-            ipAddress: ''
+            ipAddress: '',
           }),
-        })
+        });
       }
     }
-  }, [setUserInfo])
+  }, [setUserInfo]);
 
   const handleClick = () => {
     if (tappablePoints > 0) {
-      removeTappablePoint()
-      addCoins(1) // Add 1 coin per tap
-      incrementTotalTaps()
+      removeTappablePoint();
+      addCoins(1); // Add 1 coin per tap
+      incrementTotalTaps();
     }
-  }
+  };
 
-  const currentCircle = circleLevels[currentCircleLevel]
-  const nextCircle = circleLevels[currentCircleLevel + 1]
-  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0
-  const progressPercentage = ((totalTaps - (currentCircle?.tapLimit || 0)) / (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) * 100
+  const currentCircle = circleLevels[currentCircleLevel];
+  const nextCircle = circleLevels[currentCircleLevel + 1];
+  const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0;
+  const progressPercentage =
+    ((totalTaps - (currentCircle?.tapLimit || 0)) /
+      (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) *
+    100;
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e]">
