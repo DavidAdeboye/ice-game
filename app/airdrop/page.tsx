@@ -2,11 +2,8 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Settings, Rocket, Zap, Coins } from 'lucide-react';
 import Image from 'next/image';
 import { useGame } from '@/context/game-context';
-import Link from 'next/link';
 
 // Avoid recursive reference by properly augmenting the Window interface
 declare global {
@@ -24,13 +21,9 @@ declare global {
 
 export default function Home() {
   const {
-    coins,
     tappablePoints,
-    maxTappablePoints,
     removeTappablePoint,
     addCoins,
-    refillSpeed,
-    setUserInfo,
     incrementTotalTaps,
     currentCircleLevel,
     totalTaps,
@@ -63,7 +56,7 @@ export default function Home() {
         });
       }
     }
-  }, [setUserInfo]);
+  }, []);
 
   const handleClick = () => {
     if (tappablePoints > 0) {
@@ -80,6 +73,11 @@ export default function Home() {
     ((totalTaps - (currentCircle?.tapLimit || 0)) /
       (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) *
     100;
+
+  const walletConnected = false; // Example placeholder value
+  const handleConnectWallet = () => {
+    console.log('Wallet connection logic goes here');
+  };
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20">
@@ -107,19 +105,20 @@ export default function Home() {
             disabled={walletConnected}
           >
             <div className="flex items-center gap-3">
-              <Wallet className="w-8 h-8 text-blue-400" />
+              {/* Replace with an actual Wallet icon */}
               <span className="text-lg">
-                {walletConnected ? `TON Wallet Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Connect your TON wallet'}
+                {walletConnected
+                  ? `TON Wallet Connected: xxxxx...xxxx`
+                  : 'Connect your TON wallet'}
               </span>
             </div>
-            {!walletConnected && <ChevronRight className="w-6 h-6" />}
           </Button>
         </div>
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Tasks</h2>
           <div className="space-y-4">
-            <Card className="p-4 bg-gray-900/50">
+            <div className="p-4 bg-gray-900/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
@@ -143,9 +142,9 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold">1.00 TON</span>
               </div>
-            </Card>
+            </div>
 
-            <Card className="p-4 bg-gray-900/50">
+            <div className="p-4 bg-gray-900/50">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
@@ -169,11 +168,10 @@ export default function Home() {
                 </div>
                 <span className="text-xl font-bold">0.50 TON</span>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-
