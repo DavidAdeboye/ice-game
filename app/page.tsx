@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Settings, Rocket, Zap, Coins } from 'lucide-react'
@@ -8,17 +8,15 @@ import Image from "next/image"
 import { useGame } from '@/context/game-context'
 import Link from 'next/link'
 
-type TelegramWebApp = {
-  initData: string;
-};
-
-const isTelegramWebApp = (window: Window): window is Window & {
-  Telegram: {
-    WebApp: TelegramWebApp;
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initData: string;
+      };
+    };
   }
-} => {
-  return !!(window as any).Telegram?.WebApp?.initData;
-};
+}
 
 export default function Home() {
   const { 
@@ -35,62 +33,40 @@ export default function Home() {
     circleLevels
   } = useGame()
 
-  const [activeTouches, setActiveTouches] = useState(0)
-  const circleRef = useRef<HTMLButtonElement>(null)
-
   useEffect(() => {
-    if (isTelegramWebApp(window)) {
-      const initData = window.Telegram.WebApp.initData;
-      if (initData) {
-        const params = new URLSearchParams(initData);
-        const username = params.get('username');
-        if (username) {
-          setUserInfo({ 
+    const initData = window.Telegram?.WebApp?.initData
+    if (initData) {
+      const params = new URLSearchParams(initData)
+      const username = params.get('username')
+      if (username) {
+        setUserInfo({ 
+          telegramUsername: username,
+          device: navigator.userAgent,
+          ipAddress: '' // You would need to get this from the server side
+        })
+        
+        // Send user data to the server
+        fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
             telegramUsername: username,
             device: navigator.userAgent,
-            ipAddress: '' // You would need to get this from the server side
-          });
-          
-          fetch('/api/users', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-              telegramUsername: username,
-              device: navigator.userAgent,
-              ipAddress: ''
-            }),
-          });
-        }
+            ipAddress: ''
+          }),
+        })
       }
     }
   }, [setUserInfo])
 
-  const handleTap = () => {
+  const handleClick = () => {
     if (tappablePoints > 0) {
       removeTappablePoint()
       addCoins(1) // Add 1 coin per tap
       incrementTotalTaps()
     }
-  }
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault()
-    setActiveTouches(e.touches.length)
-    for (let i = 0; i < e.touches.length; i++) {
-      handleTap()
-    }
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault()
-    setActiveTouches(e.touches.length)
-  }
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault()
-    setActiveTouches(e.touches.length)
   }
 
   const currentCircle = circleLevels[currentCircleLevel]
@@ -144,11 +120,7 @@ export default function Home() {
         <h2 className="text-xl font-semibold mb-8">Ice Cube Intern • {currentCircleLevel + 1}/9</h2>
 
         <button
-          ref={circleRef}
-          onClick={handleTap}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onClick={handleClick}
           disabled={tappablePoints === 0}
           className="relative w-64 h-64 mb-8 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#1a1b1e] disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -158,11 +130,6 @@ export default function Home() {
             fill
             className="object-cover"
           />
-          {activeTouches > 0 && (
-            <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
-              <span className="text-4xl font-bold">{activeTouches}x</span>
-            </div>
-          )}
         </button>
 
         <div className="w-full max-w-sm mb-4">
