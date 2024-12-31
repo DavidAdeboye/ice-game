@@ -1,74 +1,150 @@
 'use client'
 
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useGame } from "@/context/game-context"
 import Image from "next/image"
 import { ArrowRight, Check, Coins } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
-const TASKS = [
+
+interface Task {
+  id: string;
+  title: string;
+  reward: number;
+  image: string;
+  link: string;
+}
+
+const INITIAL_TASKS: Task[] = [
   {
-    id: 'daily-1',
-    title: 'Daily Task',
+    id: 'youtube-1',
+    title: 'Watch Tutorial Video',
     reward: 1000,
-    progress: { current: 1, total: 3 },
-    image: '/placeholder.svg'
+    image: '/youtube.svg',
+    link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
   },
   {
-    id: 'weekly-1',
-    title: 'Weekly Challenge',
-    reward: 5000,
-    progress: { current: 3, total: 5 },
-    image: '/placeholder.svg'
+    id: 'twitter-1',
+    title: 'Follow on Twitter',
+    reward: 500,
+    image: '/twitter-x.svg',
+    link: 'https://twitter.com/example'
   },
   {
-    id: 'special-1',
-    title: 'Special Event',
-    reward: 10000,
-    image: '/placeholder.svg'
+    id: 'telegram-1',
+    title: 'Join Telegram Channel',
+    reward: 750,
+    image: '/telegram.svg',
+    link: 'https://t.me/example'
   },
   {
-    id: 'achievement-1',
-    title: 'First Achievement',
-    reward: 2500,
-    image: '/placeholder.svg'
+    id: 'discord-1',
+    title: 'Join Discord Server',
+    reward: 600,
+    image: '/discord.svg',
+    link: 'https://discord.gg/example'
   },
   {
-    id: 'social-1',
-    title: 'Social Task',
-    reward: 3000,
-    progress: { current: 0, total: 5 },
-    image: '/placeholder.svg'
+    id: 'medium-1',
+    title: 'Read Blog Post',
+    reward: 300,
+    image: '/blog.svg',
+    link: 'https://medium.com/example'
   }
 ]
 
 export default function Earn() {
   const { completedTasks, completeTask, addCoins } = useGame()
+  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+  const [waitingTasks, setWaitingTasks] = useState<Record<string, number>>({})
+  const [taskToComplete, setTaskToComplete] = useState<{ id: string, reward: number } | null>(null)
 
-  const handleCompleteTask = (taskId: string, reward: number) => {
-    if (!completedTasks.includes(taskId)) {
-      completeTask(taskId)
-      addCoins(reward)
+  const sortedTasks = useMemo(() => {
+    return [...tasks].sort((a, b) => {
+      const aCompleted = completedTasks.includes(a.id)
+      const bCompleted = completedTasks.includes(b.id)
+      if (aCompleted === bCompleted) return 0
+      return aCompleted ? 1 : -1
+    })
+  }, [tasks, completedTasks])
+
+  const handleCompleteTask = useCallback((taskId: string, reward: number) => {
+    setTaskToComplete({ id: taskId, reward })
+  }, [])
+
+  useEffect(() => {
+    if (taskToComplete && !completedTasks.includes(taskToComplete.id)) {
+      completeTask(taskToComplete.id)
+      addCoins(taskToComplete.reward)
+      toast({
+        title: "Task Completed",
+        description: `You earned ${taskToComplete.reward} coins!`,
+      })
+      setTasks(prevTasks => {
+        const updatedTasks = prevTasks.filter(task => task.id !== taskToComplete.id)
+        const completedTask = prevTasks.find(task => task.id === taskToComplete.id)
+        if (completedTask) {
+          updatedTasks.push(completedTask)
+        }
+        return updatedTasks
+      })
+      setTaskToComplete(null)
+    }
+  }, [taskToComplete, completedTasks, completeTask, addCoins])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setWaitingTasks((prev) => {
+        const newWaiting = { ...prev }
+        Object.keys(newWaiting).forEach((taskId) => {
+          if (newWaiting[taskId] > 0) {
+            newWaiting[taskId]--
+          } else {
+            delete newWaiting[taskId]
+            const task = tasks.find(t => t.id === taskId)
+            if (task) {
+              handleCompleteTask(taskId, task.reward)
+            }
+          }
+        })
+        return newWaiting
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [tasks, handleCompleteTask])
+
+  const handleTaskStart = (task: Task) => {
+    if (!completedTasks.includes(task.id) && !waitingTasks[task.id]) {
+      window.open(task.link, '_blank')
+      setWaitingTasks((prev) => ({ ...prev, [task.id]: 10 }))
+      toast({
+        title: "Task Started",
+        description: "Wait 10 seconds before completing this task.",
+      })
     }
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-4 pb-20">
+    <div className="flex flex-col min-h-screen p-4 pb-20 bg-gradient-to-b from-blue-900 to-black text-white">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Earn Ice</h1>
-        <p className="text-gray-400">Complete tasks to earn ice rewards</p>
+        <p className="text-gray-300">Complete tasks to earn ice rewards</p>
       </div>
 
       <div className="space-y-4">
-        {TASKS.map((task) => {
+        {sortedTasks.map((task) => {
           const isCompleted = completedTasks.includes(task.id)
+          const isWaiting = waitingTasks[task.id] > 0
           return (
             <Card 
               key={task.id} 
-              className={`p-4 bg-gray-900/50 transition-opacity duration-300 ${isCompleted ? 'opacity-50' : ''}`}
+              className={`p-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl transition-all duration-300 ${isCompleted ? 'opacity-50' : ''}`}
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Image
                     src={task.image}
@@ -87,28 +163,34 @@ export default function Earn() {
                 </div>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  onClick={() => handleCompleteTask(task.id, task.reward)}
-                  disabled={isCompleted}
+                  size="sm"
+                  onClick={() => !isCompleted && handleTaskStart(task)}
+                  disabled={isCompleted || isWaiting}
+                  className="flex items-center gap-2"
                 >
                   {isCompleted ? (
-                    <Check className="w-6 h-6 text-green-500" />
+                    <>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span>Completed</span>
+                    </>
+                  ) : isWaiting ? (
+                    <>
+                      <ArrowRight className="w-4 h-4 animate-pulse" />
+                      <span>In Progress</span>
+                    </>
                   ) : (
-                    task.progress ? <ArrowRight className="w-6 h-6" /> : <Check className="w-6 h-6" />
+                    <>
+                      <ArrowRight className="w-4 h-4" />
+                      <span>Start Task</span>
+                    </>
                   )}
                 </Button>
               </div>
-              {task.progress && (
-                <>
-                  <Progress 
-                    value={(task.progress.current / task.progress.total) * 100} 
-                    className="h-2" 
-                  />
-                  <div className="flex justify-between mt-2 text-sm text-gray-400">
-                    <span>Progress</span>
-                    <span>{task.progress.current}/{task.progress.total}</span>
-                  </div>
-                </>
+              {isWaiting && (
+                <div className="mt-2">
+                  <Progress value={(10 - waitingTasks[task.id]) / 10 * 100} className="h-2" />
+                  <p className="text-sm text-gray-400 mt-1">Wait {waitingTasks[task.id]} seconds</p>
+                </div>
               )}
             </Card>
           )

@@ -24,6 +24,7 @@ interface User {
   device: string
   currentCircleLevel: number
   totalTaps: number
+  profilePicture: string | null
 }
 
 interface GameState extends User {
@@ -43,15 +44,42 @@ interface GameState extends User {
 const GameContext = createContext<GameState | null>(null)
 
 const CIRCLE_LEVELS: CircleLevel[] = [
-  { tapLimit: 1000, image: '/placeholder.svg' },
-  { tapLimit: 2000, image: '/placeholder.svg' },
-  { tapLimit: 4000, image: '/placeholder.svg' },
-  { tapLimit: 8000, image: '/placeholder.svg' },
-  { tapLimit: 16000, image: '/placeholder.svg' },
-  { tapLimit: 32000, image: '/placeholder.svg' },
-  { tapLimit: 64000, image: '/placeholder.svg' },
-  { tapLimit: 128000, image: '/placeholder.svg' },
-  { tapLimit: 256000, image: '/placeholder.svg' },
+  { 
+    tapLimit: 1000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-26 06.50.10 - A flat, 2D minimalist logo for a cryptocurrency airdrop platform named \'ClawFi\'. The design features a skeletal claw gripping a glowing coin with a sl-MEIcdReRlgu30CxErnKwMhBfZNLcNf.webp'
+  },
+  { 
+    tapLimit: 2000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-8c3d5e7d-2959-4dc8-8c81-db01e8e0a7ad.png-8NsH8R1FmN5Z9vohVb6YWj1jiSRnpw.webp'
+  },
+  { 
+    tapLimit: 4000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-f8feef3a-93c9-4957-b1ae-da265c9b7a5a.png-Cn4zOsB165fGnuvn7jM3V3AZkIBbDa.webp'
+  },
+  { 
+    tapLimit: 8000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-a8ae3e32-f498-483b-a023-8f2d0d2c2821.png-BjMV4qGLetvtiPl9s8g6amN2wkCPDb.webp'
+  },
+  { 
+    tapLimit: 16000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-2f9edf29-7684-4661-ae05-2c25bfb4259d.png-m17LMvXlA4ZkljRAuORtA1dnI9yUKK.webp'
+  },
+  { 
+    tapLimit: 32000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-f4353d9d-16b2-4971-85fd-b69b9aa06277.png-xHvJz5jjQog5DFQC5i5GtSNB2hJqE0.webp'
+  },
+  { 
+    tapLimit: 64000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-bcc08d89-6f56-462b-8ab0-5f417a22c727.png-Ey1x8G1TfG2AU9KknG9cD6cazzrZe0.webp'
+  },
+  { 
+    tapLimit: 128000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL·E 2024-12-26 06.50.10 - A flat, 2D minimalist logo for a cryptocurrency airdrop platform named \'ClawFi\'. The design features a skeletal claw gripping a glowing coin with a sl-MEIcdReRlgu30CxErnKwMhBfZNLcNf.webp'
+  },
+  { 
+    tapLimit: 256000, 
+    image: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pixlr-image-generator-5a6c6ff5-985a-46b3-9a42-bd859942b568.png-tPkbE6Wl8EQC7g7ujSM6rWPOMjo2Oc.webp'
+  },
 ]
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
@@ -72,6 +100,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     device: '',
     currentCircleLevel: 0,
     totalTaps: 0,
+    profilePicture: null,
   })
 
   const initialLoadDone = useRef(false)

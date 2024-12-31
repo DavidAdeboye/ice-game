@@ -37,12 +37,12 @@ export default function Boost() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-4 pb-20">
+    <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e] text-white">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Boost Points</h1>
         <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2">
           <Coins className="w-5 h-5 text-yellow-400" />
-          <span>{coins}</span>
+          <span className="text-yellow-400">{coins}</span>
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function Boost() {
                   <h3 className="font-semibold">+{option.points} Points</h3>
                   <div className="flex items-center gap-2">
                     <Coins className="w-4 h-4 text-yellow-400" />
-                    <span>{option.cost}</span>
+                    <span className="text-yellow-400">{option.cost}</span>
                   </div>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default function Boost() {
                     <h3 className="font-semibold">+{option.speed} Refill Speed</h3>
                     <div className="flex items-center gap-2">
                       <Coins className="w-4 h-4 text-yellow-400" />
-                      <span>{option.cost}</span>
+                      <span className="text-yellow-400">{option.cost}</span>
                     </div>
                   </div>
                 </div>

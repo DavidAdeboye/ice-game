@@ -30,18 +30,35 @@ export default function Home() {
     incrementTotalTaps,
     currentCircleLevel,
     totalTaps,
-    circleLevels
+    circleLevels,
+    user
   } = useGame()
 
   const [activeTouches, setActiveTouches] = useState(0)
   const circleRef = useRef<HTMLButtonElement>(null)
+
+  // Level Titles for the progression
+  const levelTitles = [
+    "Clawling Cub",
+    "Scratch Rookie",
+    "Pawprint Apprentice",
+    "Claw Handler",
+    "Shred Specialist",
+    "Feral Scratcher",
+    "Savage Striker",
+    "Wildclaw Veteran",
+    "Alpha Predator"
+  ]
+
+  // Determine the current title based on the level
+  const currentTitle = levelTitles[currentCircleLevel] || "Unknown Level"
 
   useEffect(() => {
     const initData = window.Telegram?.WebApp?.initData
     if (initData) {
       const params = new URLSearchParams(initData)
       const username = params.get('username')
-      if (username) {
+      if (username && setUserInfo) {
         setUserInfo({ 
           telegramUsername: username,
           device: navigator.userAgent,
@@ -101,20 +118,20 @@ export default function Home() {
         <div className="flex items-center gap-2">
           <div className="w-8 h-8">
             <Image
-              src="/placeholder.svg"
-              alt="Crystal Logo"
+              src={user?.profilePicture || "/placeholder.svg"}
+              alt="Profile Picture"
               width={32}
               height={32}
-              className="w-full h-full object-cover"
+              className="w-full h-full rounded-full object-cover"
             />
           </div>
-          <h1 className="text-xl font-bold">Metaldness</h1>
+          <h1 className="text-xl font-bold text-white">{user?.telegramUsername || "User"}</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-black/40 backdrop-blur-sm rounded-full px-4 py-1.5 flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm">{Math.floor(coins)}</span>
+              <span className="text-sm text-yellow-400">{Math.floor(coins)}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
@@ -135,10 +152,11 @@ export default function Home() {
             width={40}
             height={40}
           />
-          <span className="text-3xl font-bold">{totalTaps}</span>
+          <span className="text-3xl font-bold text-white">{totalTaps}</span>
         </div>
 
-        <h2 className="text-xl font-semibold mb-8">Ice Cube Intern • {currentCircleLevel + 1}/9</h2>
+        {/* Updated title */}
+        <h2 className="text-xl font-semibold text-white mb-8">{currentTitle} • {currentCircleLevel + 1}/9</h2>
 
         <button
           ref={circleRef}
@@ -157,15 +175,15 @@ export default function Home() {
           />
           {activeTouches > 0 && (
             <div className="absolute inset-0 bg-white/20 flex items-center justify-center">
-              <span className="text-4xl font-bold">{activeTouches}x</span>
+              <span className="text-4xl font-bold text-white">{activeTouches}x</span>
             </div>
           )}
         </button>
 
         <div className="w-full max-w-sm mb-4">
           <div className="flex justify-between mb-2">
-            <span>Progress to next level</span>
-            <span>{remainingTaps} taps remaining</span>
+            <span className="text-white">Progress to next level</span>
+            <span className="text-white">{remainingTaps} taps remaining</span>
           </div>
           <Progress value={progressPercentage} className="h-2 bg-gray-800" />
         </div>
@@ -174,12 +192,12 @@ export default function Home() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-yellow-400" />
-              <span className="font-medium">Taps: {tappablePoints}/{maxTappablePoints}</span>
+              <span className="font-medium text-white">Taps: {tappablePoints}/{maxTappablePoints}</span>
             </div>
             <Link href="/boost">
               <Button variant="ghost" className="flex items-center gap-2">
                 <Rocket className="w-5 h-5" />
-                <span className="font-medium">Boost</span>
+                <span className="font-medium text-white">Boost</span>
               </Button>
             </Link>
           </div>
@@ -190,4 +208,3 @@ export default function Home() {
     </div>
   )
 }
-

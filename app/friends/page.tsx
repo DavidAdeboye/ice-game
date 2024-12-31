@@ -8,22 +8,35 @@ import { Copy, Check } from 'lucide-react'
 import { useGame } from '@/context/game-context'
 
 export default function Friends() {
-  const { addCoins } = useGame()
+  const { addCoins, telegramUsername } = useGame()
   const [referralLink, setReferralLink] = useState('')
   const [copied, setCopied] = useState(false)
   const [friends, setFriends] = useState<string[]>([])
 
   useEffect(() => {
-    // Generate a unique referral link
-    const uniqueId = Math.random().toString(36).substring(2, 15)
-    setReferralLink(`https://yourgame.com/refer/${uniqueId}`)
-
-    // Load friends from localStorage
-    const storedFriends = localStorage.getItem('friends')
-    if (storedFriends) {
-      setFriends(JSON.parse(storedFriends))
+    const fetchReferralCode = async () => {
+      if (telegramUsername) {
+        const response = await fetch('/api/referral', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telegramUsername })
+        })
+        const data = await response.json()
+        setReferralLink(`${window.location.origin}/refer/${data.referralCode}`)
+      }
     }
-  }, [])
+
+    const fetchReferrals = async () => {
+      if (telegramUsername) {
+        const response = await fetch(`/api/referral?username=${telegramUsername}`)
+        const data = await response.json()
+        setFriends(data.referrals)
+      }
+    }
+
+    fetchReferralCode()
+    fetchReferrals()
+  }, [telegramUsername])
 
   const handleCopy = () => {
     navigator.clipboard.writeText(referralLink)
@@ -32,16 +45,14 @@ export default function Friends() {
   }
 
   const handleInvite = () => {
-    // Simulate inviting a friend
-    const newFriend = `Friend${friends.length + 1}`
-    const updatedFriends = [...friends, newFriend]
-    setFriends(updatedFriends)
-    localStorage.setItem('friends', JSON.stringify(updatedFriends))
-    addCoins(5000) // Reward for inviting a friend
+    // This function can be used to trigger sharing via Telegram or other platforms
+    console.log('Invite friend')
+    // Simulate adding coins for inviting a friend
+    addCoins(5000)
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-4 pb-20">
+    <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e] text-white">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Invite Friends!</h1>
         <p className="text-gray-400">
