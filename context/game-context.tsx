@@ -43,15 +43,15 @@ interface GameState extends User {
 const GameContext = createContext<GameState | null>(null)
 
 const CIRCLE_LEVELS: CircleLevel[] = [
-  { tapLimit: 1000, image: '/placeholder.svg' },
-  { tapLimit: 2000, image: '/placeholder.svg' },
-  { tapLimit: 4000, image: '/placeholder.svg' },
-  { tapLimit: 8000, image: '/placeholder.svg' },
-  { tapLimit: 16000, image: '/placeholder.svg' },
+  { tapLimit: 1000, image: '/level11.webp' },
+  { tapLimit: 2000, image: '/level2.webp' },
+  { tapLimit: 4000, image: '/level3.webp' },
+  { tapLimit: 8000, image: '/level4.webp' },
+  { tapLimit: 16000, image: '/level5.webp' },
   { tapLimit: 32000, image: '/placeholder.svg' },
   { tapLimit: 64000, image: '/placeholder.svg' },
   { tapLimit: 128000, image: '/placeholder.svg' },
-  { tapLimit: 256000, image: '/placeholder.svg' },
+  { tapLimit: 256000, image: '/level9.webp' },
 ]
 
 export function GameProvider({ children }: { children: React.ReactNode }) {

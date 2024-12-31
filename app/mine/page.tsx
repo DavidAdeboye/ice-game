@@ -17,13 +17,13 @@ export default function Mine() {
       <header className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Image
-            src="/placeholder.svg"
+            src="/claw.svg"
             alt="Logo"
             width={40}
             height={40}
             className="rounded-full"
           />
-          <h1 className="text-xl font-bold">{telegramUsername || "User"}</h1>
+          <h1 className="text-xl font-bold text-white">{telegramUsername || "User"}</h1>
         </div>
         <div className="bg-gray-800/50 rounded-full px-4 py-1 flex items-center gap-2">
           <Coins className="w-5 h-5 text-yellow-400" />
@@ -32,16 +32,17 @@ export default function Mine() {
       </header>
 
       <Card className="flex flex-col p-6 bg-gray-900/50">
-        <h2 className="text-2xl font-bold mb-6">Upgrade Claw Production </h2>
+        <h2 className="text-2xl font-bold mb-6 text-white">Upgrade Claw Production</h2>
         <div className="flex justify-center mb-6">
-          <div className="relative">
-            <Image
-              src="/placeholder.svg"
-              alt="Ice cubes"
-              width={100}
-              height={100}
-            />
-            <span className="absolute -right-4 -top-4 text-2xl font-bold">{minerLevel}</span>
+        <Image
+            src="/claw.svg"
+            alt="Logo"
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+          <div className="flex justify-center items-center text-2xl font-bold text-white">
+            Miner Level {minerLevel}
           </div>
         </div>
 
@@ -67,11 +68,10 @@ export default function Mine() {
         <div className="flex gap-2 p-4 bg-gray-800/50 rounded-lg">
           <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0" />
           <p className="text-sm text-gray-300">
-          Your cave automatically produces claws every hour. Upgrade to increase production!  
+            Your cave automatically produces claws every hour. Upgrade to increase production!  
           </p>
         </div>
       </Card>
     </div>
   )
 }
-
