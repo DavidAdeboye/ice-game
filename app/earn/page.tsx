@@ -22,35 +22,35 @@ const INITIAL_TASKS: Task[] = [
     id: 'youtube-1',
     title: 'Watch Tutorial Video',
     reward: 1000,
-    image: '/placeholder.svg',
+    image: '/youtube.svg',
     link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
   },
   {
     id: 'twitter-1',
     title: 'Follow on Twitter',
     reward: 500,
-    image: '/placeholder.svg',
+    image: '/twitter-x.svg',
     link: 'https://twitter.com/example'
   },
   {
     id: 'telegram-1',
     title: 'Join Telegram Channel',
     reward: 750,
-    image: '/placeholder.svg',
+    image: '/telegram.svg',
     link: 'https://t.me/example'
   },
   {
     id: 'discord-1',
     title: 'Join Discord Server',
     reward: 600,
-    image: '/placeholder.svg',
+    image: '/discord.svg',
     link: 'https://discord.gg/example'
   },
   {
     id: 'medium-1',
     title: 'Read Blog Post',
     reward: 300,
-    image: '/placeholder.svg',
+    image: '/blog.svg',
     link: 'https://medium.com/example'
   }
 ]
@@ -62,13 +62,13 @@ interface DailyReward {
 }
 
 const DAILY_REWARDS: DailyReward[] = [
-  { day: 1, coins: 1000 },
-  { day: 2, coins: 2000 },
-  { day: 3, coins: 3000 },
-  { day: 4, coins: 4000 },
-  { day: 5, coins: 5000 },
-  { day: 6, coins: 7500 },
-  { day: 7, coins: 15000, special: true },
+  { day: 1, coins: 100 },
+  { day: 2, coins: 200 },
+  { day: 3, coins: 300 },
+  { day: 4, coins: 400 },
+  { day: 5, coins: 500 },
+  { day: 6, coins: 750 },
+  { day: 7, coins: 1500, special: true },
 ]
 
 export default function Earn() {

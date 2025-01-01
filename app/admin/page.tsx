@@ -76,7 +76,7 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-gray-900 p-4">
-      <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
+      <h1 className="text-3xl text-white font-bold mb-6">Admin Panel</h1>
       <Card className="p-4 overflow-x-auto">
         <Table>
           <TableHeader>
