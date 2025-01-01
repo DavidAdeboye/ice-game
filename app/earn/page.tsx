@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { useGame } from "@/context/game-context"
+import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
-import { ArrowRight, Check, Coins } from 'lucide-react'
-import { toast } from '@/hooks/use-toast'
-
+import { ArrowRight, Check, Coins, Gift, Star, AlertTriangle } from 'lucide-react'
 
 interface Task {
   id: string;
@@ -23,44 +22,64 @@ const INITIAL_TASKS: Task[] = [
     id: 'youtube-1',
     title: 'Watch Tutorial Video',
     reward: 1000,
-    image: '/youtube.svg',
+    image: '/placeholder.svg',
     link: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
   },
   {
     id: 'twitter-1',
     title: 'Follow on Twitter',
     reward: 500,
-    image: '/twitter-x.svg',
+    image: '/placeholder.svg',
     link: 'https://twitter.com/example'
   },
   {
     id: 'telegram-1',
     title: 'Join Telegram Channel',
     reward: 750,
-    image: '/telegram.svg',
+    image: '/placeholder.svg',
     link: 'https://t.me/example'
   },
   {
     id: 'discord-1',
     title: 'Join Discord Server',
     reward: 600,
-    image: '/discord.svg',
+    image: '/placeholder.svg',
     link: 'https://discord.gg/example'
   },
   {
     id: 'medium-1',
     title: 'Read Blog Post',
     reward: 300,
-    image: '/blog.svg',
+    image: '/placeholder.svg',
     link: 'https://medium.com/example'
   }
 ]
 
+interface DailyReward {
+  day: number
+  coins: number
+  special?: boolean
+}
+
+const DAILY_REWARDS: DailyReward[] = [
+  { day: 1, coins: 1000 },
+  { day: 2, coins: 2000 },
+  { day: 3, coins: 3000 },
+  { day: 4, coins: 4000 },
+  { day: 5, coins: 5000 },
+  { day: 6, coins: 7500 },
+  { day: 7, coins: 15000, special: true },
+]
+
 export default function Earn() {
   const { completedTasks, completeTask, addCoins } = useGame()
+  const { toast } = useToast()
   const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
   const [waitingTasks, setWaitingTasks] = useState<Record<string, number>>({})
   const [taskToComplete, setTaskToComplete] = useState<{ id: string, reward: number } | null>(null)
+  const [currentStreak, setCurrentStreak] = useState(1)
+  const [lastClaim, setLastClaim] = useState<string | null>(null)
+  const [canClaim, setCanClaim] = useState(false)
 
   const sortedTasks = useMemo(() => {
     return [...tasks].sort((a, b) => {
@@ -93,7 +112,7 @@ export default function Earn() {
       })
       setTaskToComplete(null)
     }
-  }, [taskToComplete, completedTasks, completeTask, addCoins])
+  }, [taskToComplete, completedTasks, completeTask, addCoins, toast])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -128,13 +147,118 @@ export default function Earn() {
     }
   }
 
+  useEffect(() => {
+    const savedStreak = localStorage.getItem('dailyStreak')
+    const savedLastClaim = localStorage.getItem('lastClaim')
+    
+    if (savedStreak) setCurrentStreak(Number(savedStreak))
+    if (savedLastClaim) setLastClaim(savedLastClaim)
+
+    const now = new Date()
+    const lastClaimDate = savedLastClaim ? new Date(savedLastClaim) : null
+    
+    if (lastClaimDate) {
+      const timeDiff = now.getTime() - lastClaimDate.getTime()
+      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24))
+      
+      if (daysDiff > 1) {
+        setCurrentStreak(1)
+        localStorage.setItem('dailyStreak', '1')
+        toast({
+          title: "Streak Reset!",
+          description: "You missed a day. Your streak has been reset.",
+          variant: "destructive",
+        })
+      }
+      
+      setCanClaim(daysDiff >= 1)
+    } else {
+      setCanClaim(true)
+    }
+  }, [])
+
+  const handleClaim = () => {
+    if (!canClaim) return
+
+    const reward = DAILY_REWARDS[(currentStreak - 1) % 7]
+    addCoins(reward.coins)
+    
+    const now = new Date()
+    setLastClaim(now.toISOString())
+    localStorage.setItem('lastClaim', now.toISOString())
+    
+    const newStreak = currentStreak % 7 === 0 ? 1 : currentStreak + 1
+    setCurrentStreak(newStreak)
+    localStorage.setItem('dailyStreak', String(newStreak))
+    
+    setCanClaim(false)
+    
+    toast({
+      title: "Reward Claimed!",
+      description: `You received ${reward.coins} coins!`,
+    })
+  }
+
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20 bg-gradient-to-b from-blue-900 to-black text-white">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Earn Ice</h1>
-        <p className="text-gray-300">Complete tasks to earn ice rewards</p>
+        <p className="text-gray-300">Complete tasks and claim daily rewards to earn ice</p>
       </div>
 
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Daily Rewards</h2>
+        <div className="grid grid-cols-7 gap-2 mb-4">
+          {DAILY_REWARDS.map((reward, index) => {
+            const isActive = index === (currentStreak - 1) % 7
+            const isPast = index < (currentStreak - 1) % 7
+            return (
+              <Card
+                key={reward.day}
+                className={`p-2 relative overflow-hidden transition-all duration-300 
+                  ${isActive ? 'bg-emerald-900/50 border-emerald-500' : 'bg-gray-800/50 border-gray-700'}
+                  ${isPast ? 'opacity-50' : ''}
+                  ${reward.special ? 'border-2' : 'border'}
+                `}
+              >
+                {reward.special && (
+                  <div className="absolute inset-0 bg-yellow-500/10 animate-pulse pointer-events-none" />
+                )}
+                <div className="flex flex-col items-center justify-center h-full">
+                  <div className={`p-1 rounded-lg ${isActive ? 'bg-emerald-500' : 'bg-gray-700'}`}>
+                    {reward.special ? (
+                      <Star className="w-4 h-4 text-yellow-400" />
+                    ) : (
+                      <Gift className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div className="text-center mt-1">
+                    <div className="text-xs font-semibold">Day {reward.day}</div>
+                    <div className="flex items-center justify-center gap-1">
+                      <Coins className="w-3 h-3 text-yellow-400" />
+                      <span className="text-xs text-yellow-400">+{reward.coins}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )
+          })}
+        </div>
+        <Button
+          onClick={handleClaim}
+          disabled={!canClaim}
+          className={`w-full ${canClaim ? 'animate-pulse' : ''}`}
+        >
+          {canClaim ? 'Claim Daily Reward' : 'Already Claimed'}
+        </Button>
+        {!canClaim && lastClaim && (
+          <p className="text-sm text-gray-400 mt-2 text-center">
+            Next reward available at: {new Date(new Date(lastClaim).getTime() + 24 * 60 * 60 * 1000).toLocaleTimeString()}
+          </p>
+        )}
+      </div>
+
+      <h2 className="text-2xl font-bold mb-4">Tasks</h2>
       <div className="space-y-4">
         {sortedTasks.map((task) => {
           const isCompleted = completedTasks.includes(task.id)
@@ -145,7 +269,7 @@ export default function Earn() {
               className={`p-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl transition-all duration-300 ${isCompleted ? 'opacity-50' : ''}`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 ">
+                <div className="flex items-center gap-3">
                   <Image
                     src={task.image}
                     alt={task.title}
@@ -154,7 +278,7 @@ export default function Earn() {
                     className="rounded-lg"
                   />
                   <div>
-                    <h3 className="font-semibold text-gray-300">{task.title}</h3>
+                    <h3 className="font-semibold">{task.title}</h3>
                     <div className="flex items-center gap-2">
                       <Coins className="w-4 h-4 text-yellow-400" />
                       <span className="text-yellow-400">+{task.reward}</span>

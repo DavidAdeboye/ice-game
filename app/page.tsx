@@ -7,6 +7,7 @@ import { Settings, Rocket, Zap, Coins } from 'lucide-react'
 import Image from "next/image"
 import { useGame } from '@/context/game-context'
 import Link from 'next/link'
+import { SplashScreen } from "@/components/splash-screen"
 
 declare global {
   interface Window {
@@ -35,11 +36,12 @@ export default function Home() {
   } = useGame()
 
   const [activeTouches, setActiveTouches] = useState(0)
+  const [showSplash, setShowSplash] = useState(true) // Splash screen state
   const circleRef = useRef<HTMLButtonElement>(null)
 
   // Level Titles for the progression
   const levelTitles = [
-    "Clawling Cub",
+    "Clawing Cub",
     "Scratch Rookie",
     "Pawprint Apprentice",
     "Claw Handler",
@@ -52,6 +54,20 @@ export default function Home() {
 
   // Determine the current title based on the level
   const currentTitle = levelTitles[currentCircleLevel] || "Unknown Level"
+
+  // Splash screen logic
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedHomepage')
+    if (hasVisited) {
+      setShowSplash(false)
+    } else {
+      localStorage.setItem('hasVisitedHomepage', 'true')
+      const timer = setTimeout(() => {
+        setShowSplash(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [])
 
   useEffect(() => {
     const initData = window.Telegram?.WebApp?.initData
@@ -111,6 +127,11 @@ export default function Home() {
   const nextCircle = circleLevels[currentCircleLevel + 1]
   const remainingTaps = nextCircle ? nextCircle.tapLimit - totalTaps : 0
   const progressPercentage = ((totalTaps - (currentCircle?.tapLimit || 0)) / (nextCircle?.tapLimit - (currentCircle?.tapLimit || 0))) * 100
+
+  // Show splash screen if showSplash is true
+  if (showSplash) {
+    return <SplashScreen />
+  }
 
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e]">
@@ -203,8 +224,9 @@ export default function Home() {
           </div>
           <Progress value={(tappablePoints / maxTappablePoints) * 100} className="h-2 bg-gray-800" />
           <p className="text-sm text-gray-400 mt-1">Refill speed: {refillSpeed} per second</p>
+          </div>
         </div>
       </div>
-    </div>
+    
   )
 }
