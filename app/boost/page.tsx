@@ -39,7 +39,7 @@ export default function Boost() {
   return (
     <div className="flex flex-col min-h-screen p-4 pb-20 bg-[#1a1b1e] text-white">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Boost Points</h1>
+        <h1 className="text-2xl font-bold text-white">Boost Points</h1>
         <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-4 py-2">
           <Coins className="w-5 h-5 text-yellow-400" />
           <span className="text-yellow-400">{coins}</span>
@@ -53,17 +53,17 @@ export default function Boost() {
               <div className="flex items-center gap-3">
                 <div className="relative w-12 h-12">
                   <Image
-                    src="/placeholder.svg"
+                    src="/tap-svgrepo-com.svg"
                     alt="Boost"
                     fill
                     className="object-cover rounded-lg"
                   />
                 </div>
                 <div>
-                  <h3 className="font-semibold">+{option.points} Points</h3>
+                  <h3 className="font-semibold text-white">+{option.points} Points</h3>
                   <div className="flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-400">{option.cost}</span>
+                    <Coins className="w-4 h-4 text-white" />
+                    <span className="text-white">{option.cost}</span>
                   </div>
                 </div>
               </div>
@@ -79,7 +79,7 @@ export default function Boost() {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Increase Refill Speed</h2>
+        <h2 className="text-xl font-bold mb-4 text-white">Increase Refill Speed</h2>
         <div className="grid gap-4">
           {REFILL_SPEED_OPTIONS.map((option) => (
             <Card key={option.id} className="p-4 bg-gray-900/50">
@@ -87,17 +87,17 @@ export default function Boost() {
                 <div className="flex items-center gap-3">
                   <div className="relative w-12 h-12">
                     <Image
-                      src="/placeholder.svg"
+                      src="/reload_x5wxnc9pqxlr.svg"
                       alt="Refill Speed"
                       fill
                       className="object-cover rounded-lg"
                     />
                   </div>
                   <div>
-                    <h3 className="font-semibold">+{option.speed} Refill Speed</h3>
+                    <h3 className="font-semibold text-white">+{option.speed} Refill Speed</h3>
                     <div className="flex items-center gap-2">
-                      <Coins className="w-4 h-4 text-yellow-400" />
-                      <span className="text-yellow-400">{option.cost}</span>
+                      <Coins className="w-4 h-4 text-white" />
+                      <span className="text-white">{option.cost}</span>
                     </div>
                   </div>
                 </div>
@@ -115,4 +115,3 @@ export default function Boost() {
     </div>
   )
 }
-

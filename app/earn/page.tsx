@@ -145,7 +145,7 @@ export default function Earn() {
               className={`p-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl transition-all duration-300 ${isCompleted ? 'opacity-50' : ''}`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 ">
                   <Image
                     src={task.image}
                     alt={task.title}
@@ -154,7 +154,7 @@ export default function Earn() {
                     className="rounded-lg"
                   />
                   <div>
-                    <h3 className="font-semibold">{task.title}</h3>
+                    <h3 className="font-semibold text-gray-300">{task.title}</h3>
                     <div className="flex items-center gap-2">
                       <Coins className="w-4 h-4 text-yellow-400" />
                       <span className="text-yellow-400">+{task.reward}</span>

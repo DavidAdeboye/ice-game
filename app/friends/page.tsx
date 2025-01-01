@@ -65,7 +65,7 @@ export default function Friends() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image
-                src="/placeholder.svg"
+                src="/friend.svg"
                 alt="Gift"
                 width={40}
                 height={40}
@@ -74,7 +74,7 @@ export default function Friends() {
                 <h3 className="font-semibold">Invite a friend</h3>
                 <div className="flex items-center gap-2">
                   <Image
-                    src="/placeholder.svg"
+                    src="/friend.svg"
                     alt="Ice"
                     width={20}
                     height={20}
@@ -90,7 +90,7 @@ export default function Friends() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Image
-                src="/placeholder.svg"
+                src="/friend.svg"
                 alt="Premium Gift"
                 width={40}
                 height={40}
@@ -99,7 +99,7 @@ export default function Friends() {
                 <h3 className="font-semibold">Invite a friend with Telegram Premium</h3>
                 <div className="flex items-center gap-2">
                   <Image
-                    src="/placeholder.svg"
+                    src="/friend.svg"
                     alt="Ice"
                     width={20}
                     height={20}

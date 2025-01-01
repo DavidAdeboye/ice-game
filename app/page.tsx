@@ -147,8 +147,8 @@ export default function Home() {
       <div className="flex flex-col items-center mt-4">
         <div className="flex items-center gap-2 mb-4">
           <Image
-            src="/placeholder.svg"
-            alt="Ice Cubes"
+            src="/claw.svg"
+            alt="Claw"
             width={40}
             height={40}
           />
