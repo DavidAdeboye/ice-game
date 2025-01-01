@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { useGame } from "@/context/game-context"
 import { useToast } from "@/components/ui/use-toast"
 import Image from "next/image"
-import { ArrowRight, Check, Coins, Gift, Star, AlertTriangle } from 'lucide-react'
+import { ArrowRight, Check, Coins, Gift, Star } from 'lucide-react'
 
 interface Task {
   id: string;
@@ -167,7 +167,6 @@ export default function Earn() {
         toast({
           title: "Streak Reset!",
           description: "You missed a day. Your streak has been reset.",
-          variant: "destructive",
         })
       }
       
@@ -175,7 +174,7 @@ export default function Earn() {
     } else {
       setCanClaim(true)
     }
-  }, [])
+  }, [toast])
 
   const handleClaim = () => {
     if (!canClaim) return

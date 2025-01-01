@@ -1,5 +1,5 @@
 'use client'
-import { useToast, Toast as ToastType } from './use-toast'
+import { useToast} from './use-toast'
 import { useEffect } from 'react'
 
 export function Toast() {

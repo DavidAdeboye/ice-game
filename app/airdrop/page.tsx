@@ -43,7 +43,7 @@ export default function Airdrop() {
               <span className="text-lg">Bringing tasks soon</span>
             </div>
             <p className="mt-2 text-sm text-gray-400">
-              We're working on exciting tasks for you to complete. Stay tuned for updates!
+              We`&apos;`re working on exciting tasks for you to complete. Stay tuned for updates!
             </p>
           </Card>
         </div>
